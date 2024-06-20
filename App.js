@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Platform } from 'react-native';
+import { StyleSheet, View, Platform, ToastAndroid } from 'react-native';
 import ImageViewer from './components/ImageViewer';
 import Button from './components/Button';
 import * as ImagePicker from 'expo-image-picker';
@@ -13,6 +13,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
 import domtoimage from 'dom-to-image';
+import ImageBackground from './components/ImageBackground';
+import PxCheckbox from './components/PxCheckBox';
+import { RootSiblingParent } from 'react-native-root-siblings';
+import Toast from 'react-native-root-toast';
 
 // Test
 // import * as SplashScreen from 'expo-splash-screen';
@@ -92,50 +96,69 @@ export default function App() {
     }
   };
 
+  function showToast() {
+    // ToastAndroid.show('保存成功', ToastAndroid.SHORT);
+
+    // Add a Toast on screen.
+    let toast = Toast.show('Request failed to send.', {
+      duration: Toast.durations.LONG
+    });
+
+    // You can manually hide the Toast, or it will automatically disappear after a `duration` ms timeout.
+    setTimeout(function hideToast() {
+      Toast.hide(toast);
+    }, 2000);
+  }
+
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <View style={styles.imageContainer}>
-        <View ref={imageRef} collapsable={false}>
-          <ImageViewer
-            placeholderImageSource={PlaceholderImage}
-            selectedImage={selectedImage}
-          />
-          {pickedEmoji && (
-            <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />
-          )}
-        </View>
-      </View>
-      {showAppOptions ? (
-        <View style={styles.optionsContainer}>
-          <View style={styles.optionsRow}>
-            <IconButton icon="refresh" label="Reset" onPress={onReset} />
-            <CircleButton onPress={onAddSticker} />
-            <IconButton
-              icon="save-alt"
-              label="Save"
-              onPress={onSaveImageAsync}
+    <RootSiblingParent>
+      <GestureHandlerRootView style={styles.container}>
+        <PxCheckbox />
+        <Button label="Show Toast" onPress={showToast} />
+        {/* <ImageBackground /> */}
+        <View style={styles.imageContainer}>
+          <View ref={imageRef} collapsable={false}>
+            <ImageViewer
+              placeholderImageSource={PlaceholderImage}
+              selectedImage={selectedImage}
             />
+            {pickedEmoji && (
+              <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />
+            )}
           </View>
         </View>
-      ) : (
-        <View style={styles.footerContainer}>
-          <Button
-            theme="primary"
-            label="Choose a photo"
-            onPress={pickImageAsync}
-          />
-          <Button
-            label="Use this photo"
-            onPress={() => setShowAppOptions(true)}
-          />
-        </View>
-      )}
+        {showAppOptions ? (
+          <View style={styles.optionsContainer}>
+            <View style={styles.optionsRow}>
+              <IconButton icon="refresh" label="Reset" onPress={onReset} />
+              <CircleButton onPress={onAddSticker} />
+              <IconButton
+                icon="save-alt"
+                label="Save"
+                onPress={onSaveImageAsync}
+              />
+            </View>
+          </View>
+        ) : (
+          <View style={styles.footerContainer}>
+            <Button
+              theme="primary"
+              label="Choose a photo"
+              onPress={pickImageAsync}
+            />
+            <Button
+              label="Use this photo"
+              onPress={() => setShowAppOptions(true)}
+            />
+          </View>
+        )}
 
-      <EmojiPicker isVisible={isModalVisible} onClose={onModalClose}>
-        <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
-      </EmojiPicker>
-      <StatusBar style="light" />
-    </GestureHandlerRootView>
+        <EmojiPicker isVisible={isModalVisible} onClose={onModalClose}>
+          <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
+        </EmojiPicker>
+        <StatusBar style="light" />
+      </GestureHandlerRootView>
+    </RootSiblingParent>
   );
 }
 
